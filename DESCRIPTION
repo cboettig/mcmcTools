@@ -1,0 +1,8 @@
+Package: mcmcTools
+Version: 0.0-1
+Title: tools for Markov Chain Monte Carlo 
+Description: Implements simple Markov Chain Monte Carlo tools 
+Depends: 
+Author: Carl Boettiger <cboettig@gmail.com> 
+Maintainer: Carl Boettiger <cboettig@gmail.com>
+License: BSD
