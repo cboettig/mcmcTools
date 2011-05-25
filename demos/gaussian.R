@@ -11,9 +11,10 @@ prior <- function(pars){
 }
 
 # chains can have different or matching starting conditions, will mix anyway
- pars <- list(c(1,2), c(1,2))
+ pars <- list(c(mu=1,sigma=2), c(mu=1,sigma=2))
 
-chains <- mcmcmc_fn(pars, loglik, prior, MaxTime=1e3, indep=100, stepsizes=.02)
+chains <- mcmcmc_fn(pars, loglik, prior, MaxTime=1e3, indep=100,
+                    stepsizes=c(.2, .1))
 
 burnin=1e2
 

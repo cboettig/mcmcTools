@@ -33,28 +33,23 @@ beta <- function(i, Delta_T=1){
 }
 
 
-mcmcmc_fn <- function(pars, loglik, prior, MaxTime=1e3, indep=100, stepsizes=.02, cpu=1, ...){
+mcmcmc_fn <- function(pars, loglik, prior, MaxTime=1e3, indep=100, 
+                      stepsizes=.1, ...){
 # Metropolis Coupled Markov Chain Monte Carlo
 # Args:
-#   pars: a list of length n_chains, with numerics pars[[i]] that can be passed to loglik
+#   pars: a list of length n_chains, with numerics pars[[i]] that can be passed 
+#         to loglik
 #   loglik: a function to calculate the log-likelihood of chain i at pars[[i]], 
 #   prior: a function to calculate the prior density
 #   MaxTime: length of time to run the chain
 #   indep: period of time for which chains should wander independently
-#   step sizes of proposal distribution (can be numeric of length 1 or length pars)
+#          step sizes of proposal distribution (can be numeric of length 1 or 
+#           length pars)
 # Returns:
-#   chains: list containing matrix for each chain, first col is loglik + log prior prob,
-#           remaining columns are fn parameters in order given in the pars[[i]]
+#   chains: list containing matrix for each chain, first col is loglik + log
+#           prior prob, remaining columns are fn parameters in order given in the pars[[i]]
 
 
-  ## are we in parallel?
-  if(cpu>1 & !sfIsRunning()){   
-    sfInit(parallel=TRUE, cpu=cpu) 
-    sfLibrary(mcmcTools) ## needs to export the library with all function defs!
-    sfExportAll()
-  } else if(cpu<2 & !sfIsRunning()){
-    sfInit()
-  } 
 
 
   n_chains <- length(pars)
@@ -62,7 +57,8 @@ mcmcmc_fn <- function(pars, loglik, prior, MaxTime=1e3, indep=100, stepsizes=.02
 
   # in case we want to store the complete history.  Should have the option
   # of writing this to a file for speed? Or do that all in C...
-  chains <- lapply(1:n_chains, function(i)  matrix(NA, nrow=MaxTime, ncol=(1+n_pars)) )
+  chains <- lapply(1:n_chains, 
+                   function(i) matrix(NA, nrow=MaxTime, ncol=(1+n_pars)) )
 
   # The independent intervals, lets us run chains in parallel during these periods
   Interval <- matrix(1:MaxTime, nrow=indep)
@@ -77,10 +73,11 @@ mcmcmc_fn <- function(pars, loglik, prior, MaxTime=1e3, indep=100, stepsizes=.02
               # Inner time loop
               for(t in 1:indep){
                 Pi <- loglik(pars[[i]]) + prior(pars[[i]])
-                out[t,] <- c(Pi, pars[[i]]) # more simply could print this to file, save mem
+                out[t,] <- c(Pi, pars[[i]])
                 proposed <- step_fn(pars[[i]], stepsizes)
                 # Normal Hastings ratio weighted by temp fn beta 
-                alpha <- exp( beta(i) * ( loglik(proposed)+prior(proposed) - Pi ) )
+                alpha <- exp( beta(i) * (loglik(proposed) + prior(proposed) -
+                                          Pi) )
                 if ( alpha  > runif(1) )
                   pars[[i]] <- proposed
               }
@@ -96,8 +93,10 @@ mcmcmc_fn <- function(pars, loglik, prior, MaxTime=1e3, indep=100, stepsizes=.02
     pick <- sample(1:length(pars), 2)
     i <- pick[1]; j <- pick[2] # for convience
     R <- 
-      beta(i) * ( loglik(pars[[j]]) + prior(pars[[j]]) - loglik(pars[[i]]) - prior(pars[[i]]) ) +
-      beta(j) * ( loglik(pars[[i]]) + prior(pars[[i]])  - loglik(pars[[j]]) - prior(pars[[j]]) )
+      beta(i) * ( loglik(pars[[j]]) + prior(pars[[j]]) - loglik(pars[[i]]) -
+                  prior(pars[[i]]) ) + 
+      beta(j) * ( loglik(pars[[i]]) + prior(pars[[i]])  - loglik(pars[[j]]) - 
+                  prior(pars[[j]]) )
     ## verbose output about swaps
     # print(paste("swap chain", i, "with", j, "proposed, R =", exp(R)))
     if(exp(R) > runif(1)){
