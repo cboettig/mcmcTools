@@ -33,7 +33,7 @@ beta <- function(i, Delta_T=1){
 }
 
 
-mcmcmc_fn <- function(pars, loglik, prior, MaxTime=1e3, indep=100, stepsizes=.02, ...){
+mcmcmc_fn <- function(pars, loglik, prior, MaxTime=1e3, indep=100, stepsizes=.02, cpu=1, ...){
 # Metropolis Coupled Markov Chain Monte Carlo
 # Args:
 #   pars: a list of length n_chains, with numerics pars[[i]] that can be passed to loglik
@@ -45,6 +45,18 @@ mcmcmc_fn <- function(pars, loglik, prior, MaxTime=1e3, indep=100, stepsizes=.02
 # Returns:
 #   chains: list containing matrix for each chain, first col is loglik + log prior prob,
 #           remaining columns are fn parameters in order given in the pars[[i]]
+
+
+  ## are we in parallel?
+  if(cpu>1 & !sfIsRunning()){   
+    sfInit(parallel=TRUE, cpu=cpu) 
+    sfLibrary(mcmcTools) ## needs to export the library with all function defs!
+    sfExportAll()
+  } else if(cpu<2 & !sfIsRunning()){
+    sfInit()
+  } 
+
+
   n_chains <- length(pars)
   n_pars <- length(pars[[1]])
 
