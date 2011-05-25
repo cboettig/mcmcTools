@@ -47,9 +47,8 @@ mcmcmc_fn <- function(pars, loglik, prior, MaxTime=1e3, indep=100,
 #           length pars)
 # Returns:
 #   chains: list containing matrix for each chain, first col is loglik + log
-#           prior prob, remaining columns are fn parameters in order given in the pars[[i]]
-
-
+#           prior prob, remaining columns are fn parameters in order given 
+#           in the pars[[i]]
 
 
   n_chains <- length(pars)
@@ -67,7 +66,7 @@ mcmcmc_fn <- function(pars, loglik, prior, MaxTime=1e3, indep=100,
   # an inner time loop that can be parallelized over chains
   for(s in 1:(MaxTime/indep)){
   # Evolve chains independently for "indep" time steps
-    out <- sfLapply(1:n_chains, 
+    out <- lapply(1:n_chains, 
             function(i){
               out <- matrix(NA, ncol=n_pars+1, nrow=indep)
               # Inner time loop
