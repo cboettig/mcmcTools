@@ -33,8 +33,8 @@ beta <- function(i, Delta_T=1){
 }
 
 
-mcmcmc_fn <- function(pars, loglik, prior, MaxTime=1e3, indep=100, 
-                      stepsizes=.1, ...){
+mcmcmc_fn <- function(pars, loglik, prior, MaxTime = 1e3, indep = 100, 
+                      stepsizes = 0.1, Delta_T = 1, ...){
 # Metropolis Coupled Markov Chain Monte Carlo
 # Args:
 #   pars: a list of length n_chains, with numerics pars[[i]] that can be passed 
@@ -66,7 +66,7 @@ mcmcmc_fn <- function(pars, loglik, prior, MaxTime=1e3, indep=100,
   # an inner time loop that can be parallelized over chains
   for(s in 1:(MaxTime/indep)){
   # Evolve chains independently for "indep" time steps
-    out <- lapply(1:n_chains, 
+    out <- sfLapply(1:n_chains, 
             function(i){
               out <- matrix(NA, ncol=n_pars+1, nrow=indep)
               # Inner time loop
@@ -75,8 +75,8 @@ mcmcmc_fn <- function(pars, loglik, prior, MaxTime=1e3, indep=100,
                 out[t,] <- c(Pi, pars[[i]])
                 proposed <- step_fn(pars[[i]], stepsizes)
                 # Normal Hastings ratio weighted by temp fn beta 
-                alpha <- exp( beta(i) * (loglik(proposed) + prior(proposed) -
-                                          Pi) )
+                alpha <- exp( beta(i, Delta_T) * (loglik(proposed) + 
+                        prior(proposed) - Pi) )
                 if ( alpha  > runif(1) )
                   pars[[i]] <- proposed
               }
@@ -92,10 +92,10 @@ mcmcmc_fn <- function(pars, loglik, prior, MaxTime=1e3, indep=100,
     pick <- sample(1:length(pars), 2)
     i <- pick[1]; j <- pick[2] # for convience
     R <- 
-      beta(i) * ( loglik(pars[[j]]) + prior(pars[[j]]) - loglik(pars[[i]]) -
-                  prior(pars[[i]]) ) + 
-      beta(j) * ( loglik(pars[[i]]) + prior(pars[[i]])  - loglik(pars[[j]]) - 
-                  prior(pars[[j]]) )
+      beta(i, Delta_T) * ( loglik(pars[[j]]) + prior(pars[[j]]) - 
+                           loglik(pars[[i]]) - prior(pars[[i]]) ) + 
+      beta(j, Delta_T) * ( loglik(pars[[i]]) + prior(pars[[i]])  - 
+                           loglik(pars[[j]]) - prior(pars[[j]]) )
     ## verbose output about swaps
     # print(paste("swap chain", i, "with", j, "proposed, R =", exp(R)))
     if(exp(R) > runif(1)){
