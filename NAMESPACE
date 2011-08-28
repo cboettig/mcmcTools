@@ -1,2 +1,5 @@
 export(mcmc_fn, mcmcmc_fn)
 import(snowfall)
+
+export(montecarlotest, loglik, getParameters, plot.pow, compare_models,
+collect)
