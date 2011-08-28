@@ -340,6 +340,18 @@ plot.pow <- function(pow, threshold=.95, main="", legend=FALSE, type="density",
     }
 }
 
+## a quick labling functions, find percent distance along x and y axis, starting at origin
+xshift <- function(xsteps){
+	deltax <- (par()$xaxp[2]-par()$xaxp[1])/100
+	par()$xaxp[1]+xsteps*deltax
+}
+yshift <- function(ysteps){
+	deltay <- (par()$yaxp[2]-par()$yaxp[1])/100
+	par()$yaxp[1]+ysteps*deltay
+}
+
+
+
 
 ## should also add the functions for summary parameter distributions
 
