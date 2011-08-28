@@ -49,28 +49,21 @@ compare_models <- function(A, B, interval=NA, ...){
 		list(lr, getParameters(A), getParameters(B))
 }
 
-collect <- function(A_sim, B_sim, A, B, GetParNames=TRUE){
+collect <- function(A_sim, B_sim, A, B){
   if(! is(A_sim, "list"))
     stop(paste("A_sim is in format", class(A_sim), "instead of list"))
   if(! is(B_sim, "list"))
     stop(paste("B_sim is in format", class(B_sim), "instead of list"))
-
 
 	## grab the distribution of likelihood ratios
 	A_dist <- sapply(A_sim, function(x) x[[1]]) 
 	B_dist <- sapply(B_sim, function(x) x[[1]]) 
   nboot <- length(A_dist)
 	## grab dist of pars observed for null model under null model sims
-	A_pars <- matrix(sapply(A_sim, function(x) x[[2]]), ncol=nboot)
-	B_pars <- matrix(sapply(B_sim, function(x) x[[3]]), ncol=nboot)
-	Asim_Bpars <- matrix(sapply(A_sim, function(x) x[[3]]), ncol=nboot)
-	Bsim_Apars <- matrix(sapply(B_sim, function(x) x[[2]]), ncol=nboot)
-	if(GetParNames){
-    rownames(A_pars) <- names(getParameters(A))
-    rownames(B_pars) <- names(getParameters(B))
-    rownames(Asim_Bpars) <- names(getParameters(B))
-    rownames(Bsim_Apars) <- names(getParameters(A))
-  }
+	A_pars <- sapply(A_sim, function(x) x[[2]])
+	B_pars <- sapply(B_sim, function(x) x[[3]])
+	Asim_Bpars <- sapply(A_sim, function(x) x[[3]])
+	Bsim_Apars <- sapply(B_sim, function(x) x[[2]])
 	## format the output
 	output <- list(null=A, test=B, nboot=nboot, 
                  null_dist=A_dist, test_dist=B_dist, 
