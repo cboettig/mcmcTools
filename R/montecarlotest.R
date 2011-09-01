@@ -62,9 +62,9 @@ collect <- function(A_sim, B_sim, A, B){
   nboot <- length(A_dist)
 	## grab dist of pars observed for null model under null model sims
 	A_pars <- sapply(A_sim, function(x) x[[2]])
-	B_pars <- sapply(B_sim, function(x) x[[3]])
+	B_pars <- sapply(B_sim, function(x) x[[2]])
 	Asim_Bpars <- sapply(A_sim, function(x) x[[3]])
-	Bsim_Apars <- sapply(B_sim, function(x) x[[2]])
+	Bsim_Apars <- sapply(B_sim, function(x) x[[3]])
 	## format the output
 	output <- list(null=A, test=B, nboot=nboot, 
                  null_dist=A_dist, test_dist=B_dist, 
