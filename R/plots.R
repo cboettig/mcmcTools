@@ -1,7 +1,7 @@
 ## The nightmare ever-expanding summary/plot function
 plot.pow <- function(pow, threshold=.95, main="", legend=FALSE, type="density", 
                      test_dist=TRUE, shade_power=FALSE, shade_p=FALSE,
-                     show_aic=FALSE, show_data=TRUE, shade=TRUE,
+                     show_data=TRUE, shade=TRUE,
                      shade_aic=FALSE, print_text=TRUE, show_text = c("p"),
                      xlim=NULL, ylim=NULL, null_dist=TRUE, bw = "nrd0",
                      info_criterion=c("aic", "bic", "aicc", "threshold"), ...){
@@ -16,6 +16,16 @@ plot.pow <- function(pow, threshold=.95, main="", legend=FALSE, type="density",
 	info_criterion = match.arg(info_criterion)
 	if(info_criterion=="aic"){
 		threshold_mark <-  2*(dof(pow$test) - dof(pow$null)) 
+  } else if(info_criterion=="aicc"){
+      k1 <- dof(pow$test)
+      k2 <- dof(pow$null)
+      n_data <- n_data_pts(pow$null)
+      print(paste("AICc correction for", n_data, "tips"))
+  aic_line <- 2*k1+2*k1*(k1+1)/(n_data-k1-1) - 2*k2+2*k2*(k2+1)/(n_data-k2-1) 
+
+  } else if(info_criterion=="bic"){
+          k <- pow$null@nterm
+  aic_line <- log(k)*(dof(pow$test) - dof(pow$null)) 
 	} else if(info_criterion=="threshold") {
 		threshold_tail <- sort(pow$null_dist)[ round(threshold*n_null) ]
 		threshold_mark <- threshold_tail #nd$x[tmp]
@@ -46,6 +56,9 @@ plot.pow <- function(pow, threshold=.95, main="", legend=FALSE, type="density",
 	if(is.null(ylim)) 
     ylim <- c(min(td$y, nd$y), max(td$y,nd$y))
 
+
+  ylim[2] <- 1.1*ylim[2]
+  xlim[2] <- 1.1*xlim[2]
 
 
 	## Density plots
@@ -117,11 +130,6 @@ plot.pow <- function(pow, threshold=.95, main="", legend=FALSE, type="density",
 		points(lr,yshift(1), cex=1.5, col="black", pch=25, fg="black", 
             bg="black")
 	}
-	if(show_aic){
-    #    abline(v=threshold_mark, lwd=3, col="darkgray", lty=3) 
-    	points(threshold_mark,yshift(1), cex=1.5, col="red", pch=25, fg="red", bg="red")
-}
-
 
 	## add legend
 	if(legend){
@@ -132,15 +140,15 @@ plot.pow <- function(pow, threshold=.95, main="", legend=FALSE, type="density",
         }
         else if (shade_aic==TRUE & test_dist==TRUE){
    		    legend("topright", 
-                 c( paste("False Alarms (", round(aic_wrong*100,3),
+                 c( paste("False Pos (", round(aic_wrong*100,2),
                           "%)", sep=""), 
-                    paste("Missed Events (", round((1-aic_power)*100,3),
+                    paste("False Neg (", round((1-aic_power)*100,2),
                           "%)", sep="")),
-                    pch=c(15,15), col=c(rgb(1,.5,0,.5), rgb(1,1,0,.5)))
+                    pch=c(15,15), col=c(rgb(1,.5,0,.5), rgb(1,1,0,.5)), bty="n")
         }
         else if (shade_aic==TRUE & test_dist==FALSE){
    		    legend("topright", paste("False Alarms (", round(aic_wrong*100,3),
-                 "%)", sep=""), pch=15, col=rgb(1,.5,0,.5))
+                 "%)", sep=""), pch=15, col=rgb(1,.5,0,.5), bty="n")
         }
     }
 }
