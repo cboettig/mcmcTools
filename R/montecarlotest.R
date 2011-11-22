@@ -116,9 +116,9 @@ montecarlotest <- function(null, test, nboot = 100, cpu = 2,
 	## are we in parallel already? If not, how many cpus do we have?
 	if(cpu>1 & !sfIsRunning()){ 	
 		sfInit(parallel=TRUE, cpu=cpu)
-#    libs <- names(sessionInfo()[[5]])
-#    for(i in libs) 
-#		 sfLibrary(i) 
+    libs <- names(sessionInfo()[[5]])
+    for(lib in libs) 
+		 sfLibrary(lib, character.only=TRUE) 
 		sfExportAll()
 	} else if(cpu<2 & !sfIsRunning()){
     sfInit()
