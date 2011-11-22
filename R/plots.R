@@ -2,7 +2,7 @@
 plot.pow <- function(pow, threshold=.95, main="", legend=FALSE, type="density", 
                      test_dist=TRUE, shade_power=FALSE, shade_p=FALSE,
                      show_aic=FALSE, show_data=TRUE, shade=TRUE,
-                     shade_aic=FALSE, print_text=TRUE, show_text = c("p"),
+                     shade_aic=FALSE, print_text=FALSE, show_text = c("p"),
                      xlim=NULL, ylim=NULL, null_dist=TRUE, bw = "nrd0",
                      info_criterion=c("aic", "bic", "aicc", "threshold"), ...){
 
@@ -19,20 +19,20 @@ plot.pow <- function(pow, threshold=.95, main="", legend=FALSE, type="density",
 	} else if(info_criterion=="threshold") {
 		threshold_tail <- sort(pow$null_dist)[ round(threshold*n_null) ]
 		threshold_mark <- threshold_tail #nd$x[tmp]
-		print(paste("threshold", threshold_mark))
+	#	print(paste("threshold", threshold_mark))
 	}
 	## Calculate statistics FIXME (should be a seperate function of pow)
 	threshold_tail <- sort(pow$null_dist)[ round(threshold*n_null) ]
 	power <- sum(pow$test_dist > threshold_tail)/n_test
 	lr <- -2*(loglik(pow$null) - loglik(pow$test))
 	p <- 1-sum(pow$null_dist < lr)/pow$n_null
-	print(paste("power is ", power, ", p = ", p))
+#	print(paste("power is ", power, ", p = ", p))
 	# Check the reverse test (equivalent to swapping null and test)
 	reverse_p <- sum(pow$test_dist < lr)/n_test
 	reverse_threshold_tail <- sort(-pow$test_dist)[ round(threshold*n_test) ]
 	reverse_power <- sum(-pow$null_dist > reverse_threshold_tail)/n_null
-	print(paste("reverse test power ", reverse_power, 
-              ", reverse test p = ", reverse_p))
+#	print(paste("reverse test power ", reverse_power, 
+#              ", reverse test p = ", reverse_p))
 	aic_wrong <- sum(pow$null_dist > threshold_mark)/n_null
 	aic_power <- sum(pow$test_dist > threshold_mark)/n_test
 
