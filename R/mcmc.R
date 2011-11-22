@@ -1,15 +1,34 @@
+#' Sequential random updating 
+#' Defines the method used for updating the parameters in MCMC iteration
+#' @param pars a vector of the parameters to updated
+#' @stepsizes a scalar or vector of length pars for the stepsize (normal sd)
+#'  used by the random update draw.  
 step_fn <- function(pars, stepsizes = .02){
-# Sequential random updating 
   j <- sample(1:length(pars), 1)
   pars[j] <- rnorm(1, pars[j], stepsizes)
   pars
 }
 
-## Proposal density is symmetric, so we won't need Q
+#' Weighting for asymetric proposal functions
+#' Proposal density is symmetric, so we won't need Q
 Q <- function(pars, proposed){
   dnorm(pars, proposed, stepsizes=1, log=TRUE)
 }
 
+#' assumes Gaussian prior densities over all parameters
+#' a function used primarily for illustrative & testing purposes;
+#' the user should specify intelligently selected priors for their system.  
+#' @param pars a vector of parameters
+#' @param means of each of the parameters of the prior
+#' @param sd an optional argument specifying the standard deviation of each prior
+#' @returns the prior log-likelihood 
+gaussian_priors <- function(pars, means = rep(0, length(pars)),
+                            sd = rep(100, length(pars))){
+  sum(dnorm(pars, means, sd, log=TRUE))
+}
+
+
+#' MCMC iteration 
 mcmc_fn <- function(pars, loglik, prior, MaxTime=1e3, stepsizes=.02, ...){
   history <- matrix(NA, nrow=MaxTime, ncol=(1+length(pars)))
   for(t in 1:MaxTime){
@@ -23,34 +42,30 @@ mcmc_fn <- function(pars, loglik, prior, MaxTime=1e3, stepsizes=.02, ...){
   history
 }
 
-
+#' Heating fraction for heated chains
+#' @param i chain number.  i=1 corresponds to the cold chain
+#' @param Delta_T temperature scaling.  Defaults to 1.  Higher values explore more liberally
+#' @returns Scaling factor beta
+#' @internal 
 beta <- function(i, Delta_T=1){
-## Heating fraction for heated chains
-## Args
-##  i: chain number.  i=1 corresponds to the cold chain
-##  Delta_T: temperature scaling.  Defaults to 1.  Higher values explore more liberally
   1/(1+Delta_T*(i-1))
 }
 
 
+#' Metropolis Coupled Markov Chain Monte Carlo
+#'   @param pars a list of length n_chains, with numerics pars[[i]] that can be passed 
+#'         to loglik
+#'   @param loglik a function to calculate the log-likelihood of chain i at pars[[i]], 
+#'   @param prior a function to calculate the prior density (as log)
+#'   @param MaxTime length of time to run the chain
+#'   @param indep period of time for which chains should wander independently
+#'          step sizes of proposal distribution (can be numeric of length 1 or 
+#'           length pars)
+#' @returns chains: a list containing matrix for each chain, first col is loglik + log
+#'           prior prob, remaining columns are fn parameters in order given 
+#'           in the pars[[i]]
 mcmcmc_fn <- function(pars, loglik, prior, MaxTime = 1e3, indep = 100, 
                       stepsizes = 0.1, Delta_T = 1, ...){
-# Metropolis Coupled Markov Chain Monte Carlo
-# Args:
-#   pars: a list of length n_chains, with numerics pars[[i]] that can be passed 
-#         to loglik
-#   loglik: a function to calculate the log-likelihood of chain i at pars[[i]], 
-#   prior: a function to calculate the prior density
-#   MaxTime: length of time to run the chain
-#   indep: period of time for which chains should wander independently
-#          step sizes of proposal distribution (can be numeric of length 1 or 
-#           length pars)
-# Returns:
-#   chains: list containing matrix for each chain, first col is loglik + log
-#           prior prob, remaining columns are fn parameters in order given 
-#           in the pars[[i]]
-
-
   n_chains <- length(pars)
   n_pars <- length(pars[[1]])
 
