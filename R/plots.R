@@ -63,6 +63,7 @@ plot.pow <- function(pow, threshold = .95, legend = FALSE, type = "density",
 		  threshold_mark <- threshold_tail #nd$x[tmp]
 		  print(paste("threshold", threshold_mark))
 	}
+
 	## Calculate statistics FIXME (should be a seperate function of pow)
 	threshold_tail <- sort(pow$null_dist)[ round(threshold*n_null) ]
 	power <- sum(pow$test_dist > threshold_tail)/n_test
@@ -105,8 +106,8 @@ plot.pow <- function(pow, threshold = .95, legend = FALSE, type = "density",
 			plot(nd, xlim=xlim, ylim=ylim, type=plottype,
            col=border1, ...) 
 			if(shade_p){
-				shade_p <- which(nd$x > pow$lr)
-				polygon(c(pow$lr,nd$x[shade_p]), c(0,nd$y[shade_p]),
+				shade_p <- which(nd$x > lr)
+				polygon(c(lr,nd$x[shade_p]), c(0,nd$y[shade_p]),
                 col=color1, border=border1)
 			} else if(shade){
 				polygon(nd$x, nd$y, col=color1, border=border1)
@@ -159,7 +160,7 @@ plot.pow <- function(pow, threshold = .95, legend = FALSE, type = "density",
   ##  Add lines to plots 
 	if(show_data){ 
     if(marker=="line")
-		  abline(v=pow$lr, lwd=3, col="black", lty=2 )
+		  abline(v=lr, lwd=3, col="black", lty=2 )
     else if(marker=="triangle")
 		points(lr,yshift(1), cex=1.5, col="black", pch=25, fg="black", 
             bg="black")
