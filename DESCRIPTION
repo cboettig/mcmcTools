@@ -5,4 +5,6 @@ Description: Implements simple Markov Chain Monte Carlo tools
 Imports: snowfall
 Author: Carl Boettiger <cboettig@gmail.com> 
 Maintainer: Carl Boettiger <cboettig@gmail.com>
-License: BSD
+URL: https://github.com/mcmcTools
+BugReports: https://github.com/mcmcTools/issues
+License: CC0
